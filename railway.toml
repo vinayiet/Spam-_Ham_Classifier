@@ -1,0 +1,8 @@
+static/
+  - css/
+    - style.css
+  - img/
+templates/
+  - index.html[env]
+  
+  python = "3.12.3"
