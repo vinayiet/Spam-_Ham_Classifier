@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import pickle
 import re
+import os
 from flask import Flask, request, render_template, jsonify, url_for
 from datetime import datetime
 
@@ -97,23 +98,44 @@ def analyze():
 def analyze_text(text):
     # Enhanced spam patterns with weighted scoring
     spam_patterns = {
-        'money_phrases': {
-            'pattern': r'(free gift|earn|cash|money|prize|winner|won|claim|dollar|[$€£])',
-            'weight': 3
-        },
-        'urgency_phrases': {
-            'pattern': r'(urgent|limited time|act now|today only|exclusive|expires|deadline)',
-            'weight': 2
-        },
-        'work_scam': {
-            'pattern': r'(work from home|working from.*comfort|income|earn from home)',
-            'weight': 4
-        },
-        'spam_markers': {
-            'pattern': r'(click here|subscribe|guarantee|certified|congratulation|selected|promotion)',
-            'weight': 2
-        }
+    'money_phrases': {
+        'pattern': r'(free gift|earn|cash|money|prize|winner|won|claim|dollar|[$€£])',
+        'weight': 3
+    },
+    'urgency_phrases': {
+        'pattern': r'(urgent|limited time|act now|today only|exclusive|expires|deadline|don’t miss out)',
+        'weight': 2
+    },
+    'work_scam': {
+        'pattern': r'(work from home|working from.*comfort|income|earn from home|easy job|no experience needed)',
+        'weight': 4
+    },
+    'spam_markers': {
+        'pattern': r'(click here|subscribe|guarantee|certified|congratulation|selected|promotion|risk free)',
+        'weight': 2
+    },
+    'phishing_links': {
+        'pattern': r'(verify your account|login to.*bank|reset your password|security alert|suspicious activity)',
+        'weight': 5
+    },
+    'crypto_scam': {
+        'pattern': r'(crypto investment|bitcoin deal|double your coins|limited ICO|airdrops|blockchain profit)',
+        'weight': 4
+    },
+    'adult_content': {
+        'pattern': r'(xxx|adult dating|meet singles|click for sex|hot girls|naughty)',
+        'weight': 5
+    },
+    'lottery_scam': {
+        'pattern': r'(you have been chosen|lottery|mega millions|your number has won|lucky draw)',
+        'weight': 3
+    },
+    'too_good_to_be_true': {
+        'pattern': r'(100% free|no strings attached|no credit card required|completely free)',
+        'weight': 3
     }
+}
+
     
     spam_score = 0
     found_patterns = []
@@ -152,5 +174,8 @@ def analyze_text(text):
         'score': spam_score
     }
 
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
